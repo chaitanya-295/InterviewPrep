@@ -6,12 +6,32 @@ import { BsCoin } from "react-icons/bs";
 import { FaUserAstronaut } from 'react-icons/fa';
 import { HiOutlineLogout } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { ServerUrl } from '../App';
+import { setUserData } from '../redux/userSlice';
+import { useDispatch } from 'react-redux';
+import AuthModel from './AuthModel';
 
 function Navbar() {
   const {userData} = useSelector((state) => state.user)
   const [showCreditPopup, setShowCreditPopup] = useState(false)
   const [showUserPopup, setShowUserPopup] = useState(false)
   const navigate = useNavigate()
+
+  const dispatch = useDispatch()
+  const [showAuth, setShowAuth] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await axios.get(ServerUrl + "/api/auth/logout", {withCredentials: true})
+      dispatch(setUserData(null))
+      setShowCreditPopup(false)
+      setShowUserPopup(false)
+      navigate("/")
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div className='bg-[#f3f3f3] flex justify-center px-4 pt-6'>
@@ -34,6 +54,10 @@ function Navbar() {
             <div className='relative'>
               <button
                 onClick={()=> {
+                  if(!userData){
+                    setShowAuth(true)
+                    return;
+                  }
                   setShowCreditPopup(!showCreditPopup);
                   setShowUserPopup(false)
                 }} 
@@ -60,6 +84,10 @@ function Navbar() {
             <div className='relative'>
               <button
                 onClick={()=>{
+                  if(!userData){
+                    setShowAuth(true)
+                    return;
+                  }
                   setShowUserPopup(!showUserPopup)
                   setShowCreditPopup(false)
                 }} 
@@ -78,7 +106,10 @@ function Navbar() {
                     className='w-full text-left text-sm py-2 hover:text-black text-gray-600'>
                     Interview History
                   </button>
-                  <button className='w-full text-left text-sm py-2 flex items-center gap-2 text-red-500'>
+                  <button
+                    onClick={handleLogout} 
+                    className='w-full text-left text-sm py-2 flex items-center gap-2 text-red-500'
+                  >
                     <HiOutlineLogout size={16}/>Logout
                   </button>
                 </div>
@@ -87,6 +118,8 @@ function Navbar() {
           </div>
 
         </motion.div>
+
+        {showAuth && <AuthModel onClose={()=> setShowAuth(false)}/>}
     </div>
   )
 }
