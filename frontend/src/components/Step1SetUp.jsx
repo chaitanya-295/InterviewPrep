@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from "motion/react"
+import axios from 'axios'
+import { ServerUrl } from '../App';
 import { FaUserTie, FaMicrophoneAlt, FaChartLine, FaBriefcase, FaFileUpload } from "react-icons/fa";
 
 function Step1SetUp({onStart}) {
@@ -13,6 +15,29 @@ function Step1SetUp({onStart}) {
   const [resumeText, setResumeText] = useState("")
   const [analysisDone, setAnalysisDone] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
+
+  const handleUplaodResume = async () => {
+    if (!resumeFile || analyzing) return;
+    setAnalyzing(true)
+
+    const formdata = new FormData();
+    formdata.append("resume", resumeFile);
+
+    try {
+        const result = await axios.post(ServerUrl + "/api/interview/resume", formdata, {
+            withCredentials: true,
+        });
+
+        setRole(result.data.role || "");
+        setExperience(result.data.experience || "");
+        setProjects(result.data.projects || []);
+        setSkills(result.data.skills || []);
+        setResumeText(result.data.resumeText || "");
+        setAnalysisDone(true);
+    } catch (error) {
+        console.log(error);
+    }
+  };
   return (
     <motion.div
         initial={{ opacity: 0 }}
@@ -134,6 +159,10 @@ function Step1SetUp({onStart}) {
                             {resumeFile && (
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
+                                    onClick={(e)=>{
+                                        e.stopPropagation();
+                                        handleUplaodResume();
+                                    }}
                                     className='mt-4 bg-gray-900 text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition'
                                 >
                                     {analyzing ? "Analyzing..." : "Analyze Resume"}
@@ -141,6 +170,15 @@ function Step1SetUp({onStart}) {
                             )}
                         </motion.div>
                     )}
+
+                    <motion.button
+                        disabled={ !role || !experience }
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.95 }}
+                        className='w-full disabled:bg-gray-600 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full text-lg font-semibold transition duration-300 shadow-md'
+                    >
+                        Start Interview
+                    </motion.button>
                 </div>
             </motion.div>
         </div>
