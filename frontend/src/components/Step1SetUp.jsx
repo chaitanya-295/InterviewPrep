@@ -28,6 +28,8 @@ function Step1SetUp({onStart}) {
             withCredentials: true,
         });
 
+        console.log("Resume analysis response:", result.data);
+
         setRole(result.data.role || "");
         setExperience(result.data.experience || "");
         setProjects(result.data.projects || []);
