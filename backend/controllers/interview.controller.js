@@ -74,7 +74,7 @@ export const analyzeResume = async (req, res) => {
 
 export const generateQuestion = async (req, res) => {
     try {
-        const {role, experience, mode, resumeText, projects, skills} = req.body
+        let {role, experience, mode, resumeText, projects, skills} = req.body
 
         role = role?.trim();
         experience = experience?.trim();
@@ -186,7 +186,7 @@ export const generateQuestion = async (req, res) => {
         });
 
     } catch (error) {
-         return res.status(500).json({ feedback: `failed to create interview ${error}`});
+        return res.status(500).json({ feedback: `failed to create interview ${error}`});
     }
 }
 
@@ -281,7 +281,7 @@ export const submitAnswer = async (req, res) => {
         question.communication = parsed.communication;
         question.correctness= parsed.correctness;
         question.score = parsed.finalScore;
-        question.feedback = parse.feedback;
+        question.feedback = parsed.feedback;
 
         await interview.save();
 

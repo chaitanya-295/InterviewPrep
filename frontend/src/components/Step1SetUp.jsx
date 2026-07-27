@@ -11,7 +11,7 @@ function Step1SetUp({ onStart }) {
   const dispatch = useDispatch()
   const [role, setRole] = useState("")
   const [experience, setExperience] = useState("")
-  const [mode, setMode] = useState("")
+  const [mode, setMode] = useState("Technical")
   const [resumeFile, setResumeFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [projects, setProjects] = useState([])
@@ -58,6 +58,8 @@ function Step1SetUp({ onStart }) {
         setLoading(false)
         onStart(result.data)
     } catch(error) {
+        console.log("Status:", error.response?.status);
+        console.log("Backend Response:", error.response?.data);
         console.log(error)
         setLoading(false)
     }
