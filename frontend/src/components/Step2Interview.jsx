@@ -2,6 +2,8 @@ import React from 'react'
 import femaleVideo from "../assets/videos/female-ai.mp4"
 import maleVideo from "../assets/videos/male-ai.mp4"
 import Timer from './Timer'
+import { motion } from 'motion/react';
+import { FaMicrophone } from 'react-icons/fa';
 
 function Step2Interview({interviewData, onFinish}) {
   //const {interviewId, questions, username} = interviewData
@@ -80,7 +82,21 @@ function Step2Interview({interviewData, onFinish}) {
               className='flex-1 bg-gray-100 p-4 sm:p-6 rounded-2xl resize-none outline-none border border-gray-200 focus:ring-2 focus:ring-emerald-500 transition text-gray-800'
             />
 
-            <div></div>
+            <div className='flex items-center gap-4 mt-6'>
+              <motion.button
+                whileHover={{ scale: 0.9 }}
+                className='w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-black text-white shadow-lg'
+              >
+                <FaMicrophone size={20}/>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 0.95}}
+                className='flex-1 bg-gradient-to-r from-emerald-600 to-teal-500 text-white py-3 sm:py-4 rounded-2xl shadow-lg hover:opacity-90 transition font-semibold' 
+              >
+                Submmit Answer
+              </motion.button>
+            </div>
         </div>
       </div>
     </div>
