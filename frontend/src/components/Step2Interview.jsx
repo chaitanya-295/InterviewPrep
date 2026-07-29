@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import femaleVideo from "../assets/videos/female-ai.mp4"
 import maleVideo from "../assets/videos/male-ai.mp4"
 import Timer from './Timer'
@@ -28,6 +28,102 @@ function Step2Interview({interviewData, onFinish}) {
 
   const currentQuestion = questions[currentIndex];
 
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if(!voices.length) return;
+
+      // Try known female voices first
+      const femaleVoice = voices.find( v => 
+        v.name.toLowerCase().includes("zira") ||
+        v.name.toLowerCase().includes("samantha") ||
+        v.name.toLowerCase.includes("female")
+      );
+
+      if (femaleVoice) {
+        setSelectedVoice(femaleVoice);
+        setVoiceGender("female");
+        return;
+      }
+
+      //Try known male voices
+      const maleVoice = voices.find( v => 
+        v.name.toLowerCase().includes("david") ||
+        v.name.toLowerCase().includes("mark") ||
+        v.name.toLowerCase().includes("male")
+      );
+
+      if (maleVoice) {
+        setSelectedVoice(maleVoice);
+        setVoiceGender("male");
+        return;
+      }
+
+      // Fallback: first voice (assume female)
+      setSelectedVoice(voices[0]);
+      setVoiceGender("female");
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, [])
+
+  const videoSource = voiceGender === "male" ? maleVideo : femaleVideo
+
+  /* -------- SPEAK FUNCTION ------- */
+  const speakText = (text) => {
+    return new Promise((resolve) => {
+      if (!window.speechSynthesis || !selectedVoice) {
+        resolve();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      // Add natural pauses after commas and periodes
+      const humanText = text
+        .replace(/,/g, ", ... ")
+        .replace(/\./g, ". ... ");
+
+      const utterance = new SpeechSynthesisUtterance(humanText);
+
+      utterance.voice = selectedVoice;
+
+      // Human-like pacing
+      utterance.rate = 0.92; // slightly slower that normal
+      utterance.pitch = 1.05; // small warmth
+      utterance.volume = 1;
+
+      utterance.onstart = () => {
+        setIsAIPlaying(true);
+        videoRef.current?.play();
+      };
+
+      utterance.onend = () => {
+        videoRef.current?.pause();
+        videoRef.current.currentTime = 0;
+        setIsAIPlaying(false);
+
+        setTimeout( () => {
+          setSubtitle("");
+          resolve();
+        }, 300);
+      };
+
+      setSubtitle(text);
+
+      window.speechSynthesis.speak(utterance);
+    });
+  };
+  
+  useEffect(() => {
+    if(!setSelectedVoice){
+      return;
+    }
+
+    
+  }, [selectedVoice])
+
   return (
     <div className='min-h-screen bg-linear-to-br from-emerald-50 via-white to-teal-100 flex items-center justify-center p-4 sm:p-6'>
       <div className='w-full max-w-350 min-h-[80vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col lg:flex-row overflow-hidden'>
@@ -37,7 +133,9 @@ function Step2Interview({interviewData, onFinish}) {
 
           <div className='w-full max-w-md rounded-2xl overflow-hidden shadow-xl'>
             <video
-              src={femaleVideo}
+              src={videoSource}
+              key={videoSource}
+              ref={videoRef}
               muted
               playsInline
               preload='auto'
@@ -46,6 +144,14 @@ function Step2Interview({interviewData, onFinish}) {
           </div>
 
           {/* subtitle pending */}
+          { 
+            subtitle &&
+            <div className='w-full max-w-md bg-gray-50 border border-gray-200  rounded-xl p-4 shadow-sm'>
+              <p className='text-gray-700 text-sm sm:text-base font-medium text-center leading-relaxed'>
+                {subtitle}
+              </p>
+            </div>
+          }
 
           {/* timer Area */}
           <div className='w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-md p-6 space-y-5'>
@@ -53,9 +159,12 @@ function Step2Interview({interviewData, onFinish}) {
               <span className='text-sm text-gary-500'>
                 Interview Status
               </span>
-              <span className='text-sm font-semibold text-emerald-600'>
-                AI Speaking
-              </span>
+              {
+                isAIPlaying && 
+                <span className='text-sm font-semibold text-emerald-600'>
+                  {isAIPlaying ? "AI Speaking" : ""}
+                </span>
+              }
             </div>
 
             <div className='h-px bg-gray-200'></div>
