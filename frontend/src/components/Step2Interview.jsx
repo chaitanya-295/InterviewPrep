@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import { FaMicrophone } from 'react-icons/fa';
 
 function Step2Interview({interviewData, onFinish}) {
-  const {interviewId, questions, username} = interviewData;
+  const {interviewId, questions, userName} = interviewData;
   const [isIntroPhase, setIsIntroPhase] = useState(true);
 
   const [isMicOn, setIsMicOn] = useState(true);
@@ -37,7 +37,7 @@ function Step2Interview({interviewData, onFinish}) {
       const femaleVoice = voices.find( v => 
         v.name.toLowerCase().includes("zira") ||
         v.name.toLowerCase().includes("samantha") ||
-        v.name.toLowerCase.includes("female")
+        v.name.toLowerCase().includes("female")
       );
 
       if (femaleVoice) {
@@ -121,8 +121,32 @@ function Step2Interview({interviewData, onFinish}) {
       return;
     }
 
-    
-  }, [selectedVoice])
+    const runIntro = async () => {
+      if(isIntroPhase){
+        await speakText(
+          `Hi ${userName}, it's great to meet you today. I hope you're feeling confident and ready.`
+        );
+
+        await speakText(
+          "I'll ask you a few questions. Just answer naturally, and take your time. Let's begin."
+        );
+
+        setIsIntroPhase(false)
+      } else if(currentQuestion) {
+        await new Promise(r => setTimeout(r, 800));
+
+        // if last queston (hard level)
+        if ( currentIndex === questions.length - 1) {
+          await speakText("Alright, this one might be a bit more challenging.");
+        }
+
+        await speakText(currentQuestion.question);
+      }
+    }
+
+    runIntro()
+
+  }, [selectedVoice, isIntroPhase, currentIndex])
 
   return (
     <div className='min-h-screen bg-linear-to-br from-emerald-50 via-white to-teal-100 flex items-center justify-center p-4 sm:p-6'>
