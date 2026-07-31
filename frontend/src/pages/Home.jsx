@@ -9,7 +9,7 @@ import { BsBarChart, BsClock, BsFileEarmarkText, BsMic, BsRobot } from 'react-ic
 import hrImg from "../assets/HR.png"
 import techImg from "../assets/tech.png"
 import confidenceImg from "../assets/confi.png"
-import creditImg from "../assets/credit.png"
+import creditImg from "../assets/Credit.png"
 import evalImg from "../assets/ai-ans.png"
 import resumeImg from "../assets/resume.png"
 import pdfImg from "../assets/pdf.png"
